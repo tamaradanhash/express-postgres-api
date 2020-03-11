@@ -9,6 +9,7 @@ const postgres = require('postgres');
 const app = express();
 const port = 3000;
 
+const { generateProductLink, generateSingleProductData } = require('./utils');
 // Connect to PostgreSQL with username and password
 const sql = postgres(
   `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:5432/${process.env.DB_DATABASE}`,
@@ -30,9 +31,7 @@ app.get('/products', async (req, res) => {
     `;
 
     // Respond in the browser with a list of products
-    res.send(
-      products.map(product => product.id + ': ' + product.name).join('<br />'),
-    );
+    res.send(products.map(generateProductLink).join('<br />'));
   } else if (Object.is(productId, NaN)) {
     // If productId is NaN (Not a Number), then respond
     // with a message as such.
@@ -49,16 +48,12 @@ app.get('/products', async (req, res) => {
       res.send('Product not found.');
     } else {
       // Respond in the browser with a single product
-      res.send(
-        singleProductList
-          .map(product => product.id + ': ' + product.name)
-          .join('<br />'),
-      );
+      res.send(singleProductList.map(generateSingleProductData).join('<br />'));
     }
   }
 });
 
 // Start server on port
 app.listen(port, () =>
-  console.log(`App listening on http://localhost:${port}!`),
+  console.log(`App listening on http://localhost:${port}`),
 );
